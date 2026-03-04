@@ -16,6 +16,10 @@ public class PublicationRepository {
     private List<Magazine> magazines;
 
     public PublicationRepository() {
+        resetRepositoryData();
+    }
+
+    public void resetRepositoryData() {
         books = List.of(
                 new Book("The Catcher in the Rye", "J.D. Salinger", "0123456", 1951, 5),
                 new Book("1984", "George Orwell", "012587", 1949, 2));

@@ -13,19 +13,20 @@ public class LoanRepository {
     public List<Loan> loans;
 
     public LoanRepository() {
+        resetRepositoryData();
+    }
+
+    public void resetRepositoryData() {
         loans = new ArrayList<>(List.of(new Loan(new UserRepository().getUsers().get(0),
-                        List.of(new PublicationRepository().getBooks().get(0)), LocalDate.now(), LocalDate.now()),
+                        List.of(new PublicationRepository().getBooks().get(0)), LocalDate.now()),
                 new Loan(new UserRepository().getUsers().get(1),
                         List.of(new PublicationRepository().getBooks().get(0)),
-                        LocalDate.now(),
                         LocalDate.now()),
                 new Loan(new UserRepository().getUsers().get(1),
                         List.of(new PublicationRepository().getBooks().get(1)),
-                        LocalDate.now().minusDays(5),
-                        LocalDate.now().plusDays(4)),
+                        LocalDate.now().minusDays(5)),
                 new Loan(new UserRepository().getUsers().get(0),
                         List.of(new PublicationRepository().getBooks().get(1)),
-                        LocalDate.now(),
                         LocalDate.now())));
     }
 

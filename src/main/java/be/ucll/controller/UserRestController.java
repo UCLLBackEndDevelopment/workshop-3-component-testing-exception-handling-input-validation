@@ -4,10 +4,16 @@ import be.ucll.model.Loan;
 import be.ucll.model.User;
 import be.ucll.service.LoanService;
 import be.ucll.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -45,12 +51,12 @@ public class UserRestController {
     }
 
     @PostMapping
-    public User addUser(@RequestBody User user) {
+    public User addUser(@Valid @RequestBody User user) {
         return userService.addUser(user);
     }
 
     @PutMapping("/{email}")
-    public User updateUser(@PathVariable("email") String email, @RequestBody User user) {
+    public User updateUser(@PathVariable("email") String email, @Valid @RequestBody User user) {
         return userService.updateUser(email, user);
     }
 
@@ -66,4 +72,23 @@ public class UserRestController {
         return "User successfully deleted.";
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({RuntimeException.class})
+    public Map<String, String> handleRuntimeException(RuntimeException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage());
+        return errors;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        for (FieldError error : ex.getFieldErrors()) {
+            String fieldName = error.getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        }
+        return errors;
+    }
 }

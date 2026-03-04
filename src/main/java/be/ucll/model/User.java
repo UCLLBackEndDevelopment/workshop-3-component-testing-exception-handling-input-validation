@@ -1,12 +1,25 @@
 package be.ucll.model;
 
+import jakarta.validation.constraints.*;
+import org.hibernate.validator.constraints.Length;
+
 import java.util.Objects;
 
 public class User {
 
+    @NotBlank(message = "Name is required")
     private String name;
+
+    @Min(value = 0, message = "Age must be a positive integer between 0 and 101")
+    @Max(value = 101, message = "Age must be a positive integer between 0 and 101")
     private int age;
+
+    @NotBlank(message = "E-mail must be a valid email format")
+    @Email(message = "E-mail must be a valid email format")
     private String email;
+
+    @NotBlank(message = "Password must be at least 8 characters long")
+    @Length(min = 8, message = "Password must be at least 8 characters long")
     private String password;
 
     public User(String name, int age, String email, String password) {
@@ -21,10 +34,6 @@ public class User {
     }
 
     public void setName(String name) {
-        if (name == null || name.isBlank()) {
-            throw new RuntimeException("Name is required");
-        }
-
         this.name = name;
     }
 
@@ -33,10 +42,6 @@ public class User {
     }
 
     public void setAge(int age) {
-        if (age < 0 || age > 101) {
-            throw new RuntimeException("Age must be a positive integer between 0 and 101");
-        }
-
         this.age = age;
     }
 
@@ -45,9 +50,6 @@ public class User {
     }
 
     public void setEmail(String email) {
-        if (email == null || !email.contains(".") || !email.contains("@")) {
-            throw new RuntimeException("E-mail must be a valid email format");
-        }
         if (this.email != null && !this.email.equals(email))
             throw new RuntimeException("E-mail address cannot be changed.");
 
@@ -59,10 +61,6 @@ public class User {
     }
 
     public void setPassword(String password) {
-        if (password == null || password.length() < 8) {
-            throw new RuntimeException("Password must be at least 8 characters long");
-        }
-
         this.password = password;
     }
 

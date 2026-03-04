@@ -1,12 +1,20 @@
 package be.ucll.model;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
 public abstract class Publication {
 
+    @NotBlank(message = "Title is required")
     private String title;
+
+    @Min(value = 1, message = "Publication year must be a positive integer")
     private int pubYear;
+
+    @Min(value = 1, message = "Publication must have at least one copy")
     private int availableCopies;
 
     public Publication(String title, int pubYear, int availableCopies) {
@@ -20,10 +28,6 @@ public abstract class Publication {
     }
 
     public void setTitle(String title) {
-        if (title == null || title.isBlank()) {
-            throw new RuntimeException("Title is required");
-        }
-
         this.title = title;
     }
 
@@ -32,10 +36,6 @@ public abstract class Publication {
     }
 
     public void setPubYear(int pubYear) {
-        if (pubYear < 0) {
-            throw new RuntimeException("Publication year must be a positive integer");
-        }
-
         if (pubYear > LocalDate.now().getYear()) {
             throw new RuntimeException("Publication year cannot be in the future");
         }
@@ -48,10 +48,6 @@ public abstract class Publication {
     }
 
     public void setAvailableCopies(int availableCopies) {
-        if (availableCopies < 1) {
-            throw new RuntimeException("Publication must have at least one copy");
-        }
-
         this.availableCopies = availableCopies;
     }
 

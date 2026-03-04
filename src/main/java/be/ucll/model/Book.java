@@ -1,10 +1,15 @@
 package be.ucll.model;
 
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.Objects;
 
 public class Book extends Publication {
 
+    @NotBlank(message = "Author is required")
     private String author;
+
+    @NotBlank(message = "ISBN is required")
     private String isbn;
 
     public Book(String title, String author, String isbn, int pubYear, int availableCopies) {
@@ -18,10 +23,6 @@ public class Book extends Publication {
     }
 
     public void setAuthor(String author) {
-        if (author == null || author.isBlank()) {
-            throw new RuntimeException("Author is required");
-        }
-
         this.author = author;
     }
 
@@ -30,10 +31,6 @@ public class Book extends Publication {
     }
 
     public void setIsbn(String isbn) {
-        if (isbn == null || isbn.isBlank()) {
-            throw new RuntimeException("ISBN is required");
-        }
-
         this.isbn = isbn;
     }
 

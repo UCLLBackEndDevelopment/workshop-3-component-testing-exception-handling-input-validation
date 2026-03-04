@@ -1,10 +1,15 @@
 package be.ucll.model;
 
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.Objects;
 
 public class Magazine extends Publication {
 
+    @NotBlank(message = "Editor is required")
     private String editor;
+
+    @NotBlank(message = "ISSN is required")
     private String issn;
 
     public Magazine(String title, String editor, String issn, int pubYear, int availableCopies) {
@@ -19,10 +24,6 @@ public class Magazine extends Publication {
     }
 
     public void setEditor(String editor) {
-        if (editor == null || editor.isBlank()) {
-            throw new RuntimeException("Editor is required");
-        }
-
         this.editor = editor;
     }
 
@@ -31,10 +32,6 @@ public class Magazine extends Publication {
     }
 
     public void setIssn(String issn) {
-        if (issn == null || issn.isBlank()) {
-            throw new RuntimeException("ISSN is required");
-        }
-
         this.issn = issn;
     }
 

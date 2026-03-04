@@ -1,5 +1,7 @@
 package be.ucll.model;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +11,19 @@ public class Loan {
 
     private User user;
     private List<Publication> publications;
+
+    @NotNull(message = "Start date is required")
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public Loan(User user, List<Publication> publications, LocalDate startDate, LocalDate endDate) {
+    public Loan(User user, List<Publication> publications, LocalDate startDate) {
         setUser(user);
-        setStartDate(startDate);
-        setEndDate(startDate.plusDays(21));
         setPublications(publications);
+
+        if (startDate != null) {
+            setStartDate(startDate);
+            setEndDate(getStartDate().plusDays(21));
+        }
     }
 
     public User getUser() {
@@ -65,10 +72,6 @@ public class Loan {
     }
 
     public void setStartDate(LocalDate startDate) {
-        if (startDate == null) {
-            throw new RuntimeException("Start date is required");
-        }
-
         if (startDate.isAfter(LocalDate.now())) {
             throw new RuntimeException("Start date cannot be in the future");
         }

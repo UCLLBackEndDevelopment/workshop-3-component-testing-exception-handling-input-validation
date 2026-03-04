@@ -1,13 +1,37 @@
 package be.ucll.unit.model;
 
+import be.ucll.model.Book;
 import be.ucll.model.Magazine;
 import be.ucll.model.Publication;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.time.Year;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MagazineTest {
+
+    private static ValidatorFactory validatorFactory;
+    private static Validator validator;
+
+    @BeforeAll
+    public static void createValidator() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+
+    @AfterAll
+    public static void close() {
+        validatorFactory.close();
+    }
 
     @Test
     public void givenValidValues_whenMagazineIsCreated_thenMagazineIsCreatedWithThoseValues() {
@@ -26,87 +50,51 @@ public class MagazineTest {
 
     @Test
     public void givenInvalidTitle_whenMagazineIsCreated_thenErrorIsThrown() {
-        Exception ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Magazine(
-                        null,
-                        "National Geographic Society",
-                        "978-1-4262-0034-5",
-                        1888,
-                        4));
+        Set<ConstraintViolation<Magazine>> violations = validator.validate(new Magazine(null, "National Geographic Society", "978-1-4262-0034-5", 1888, 4));
+        assertEquals(1, violations.size());
+        ConstraintViolation<Magazine> violation = violations.iterator().next();
+        assertEquals("Title is required", violation.getMessage());
 
-        Assertions.assertEquals("Title is required", ex.getMessage());
-
-        ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Magazine(
-                        "",
-                        "National Geographic Society",
-                        "978-1-4262-0034-5",
-                        1888, 4));
-
-        Assertions.assertEquals("Title is required", ex.getMessage());
+        violations = validator.validate(new Magazine("", "National Geographic Society", "978-1-4262-0034-5", 1888, 4));
+        assertEquals(1, violations.size());
+        violation = violations.iterator().next();
+        assertEquals("Title is required", violation.getMessage());
     }
 
     @Test
     public void givenInvalidAuthor_whenMagazineIsCreated_thenErrorIsThrown() {
-        Exception ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Magazine(
-                        "National Geographic",
-                        null,
-                        "978-1-4262-0034-5",
-                        1888, 4));
+        Set<ConstraintViolation<Magazine>> violations = validator.validate(new Magazine("National Geographic", null, "978-1-4262-0034-5", 1888, 4));
+        assertEquals(1, violations.size());
+        ConstraintViolation<Magazine> violation = violations.iterator().next();
+        assertEquals("Editor is required", violation.getMessage());
 
-        Assertions.assertEquals("Editor is required", ex.getMessage());
-
-        ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Magazine(
-                        "National Geographic",
-                        "",
-                        "978-1-4262-0034-5",
-                        1888, 4));
-
-        Assertions.assertEquals("Editor is required", ex.getMessage());
+        violations = validator.validate(new Magazine("National Geographic", "", "978-1-4262-0034-5", 1888, 4));
+        assertEquals(1, violations.size());
+        violation = violations.iterator().next();
+        assertEquals("Editor is required", violation.getMessage());
     }
 
     @Test
     public void givenInvalidISBN_whenMagazineIsCreated_thenErrorIsThrown() {
-        Exception ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Magazine(
-                        "National Geographic",
-                        "National Geographic Society",
-                        null,
-                        1888, 4));
+        Set<ConstraintViolation<Magazine>> violations = validator.validate(new Magazine("National Geographic", "National Geographic Society", null, 1888, 4));
+        assertEquals(1, violations.size());
+        ConstraintViolation<Magazine> violation = violations.iterator().next();
+        assertEquals("ISSN is required", violation.getMessage());
 
-        Assertions.assertEquals("ISSN is required", ex.getMessage());
-
-        ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Magazine(
-                        "National Geographic",
-                        "National Geographic Society",
-                        "",
-                        1888, 4));
-
-        Assertions.assertEquals("ISSN is required", ex.getMessage());
+        violations = validator.validate(new Magazine("National Geographic", "National Geographic Society", "", 1888, 4));
+        assertEquals(1, violations.size());
+        violation = violations.iterator().next();
+        assertEquals("ISSN is required", violation.getMessage());
     }
 
     @Test
     public void givenInvalidYear_whenMagazineIsCreated_thenErrorIsThrown() {
+        Set<ConstraintViolation<Magazine>> violations = validator.validate(new Magazine("National Geographic", "National Geographic Society", "978-1-4262-0034-5", -1888, 4));
+        assertEquals(1, violations.size());
+        ConstraintViolation<Magazine> violation = violations.iterator().next();
+        assertEquals("Publication year must be a positive integer", violation.getMessage());
+
         Exception ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Magazine(
-                        "National Geographic",
-                        "National Geographic Society",
-                        "978-1-4262-0034-5",
-                        -1888, 4));
-
-        Assertions.assertEquals("Publication year must be a positive integer", ex.getMessage());
-
-        ex = Assertions.assertThrows(
                 RuntimeException.class,
                 () -> new Magazine(
                         "National Geographic",
@@ -119,15 +107,10 @@ public class MagazineTest {
 
     @Test
     public void givenInvalidAvailableCopies_whenMagazineIsCreated_thenErrorIsThrown() {
-        Exception ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Magazine(
-                        "National Geographic",
-                        "National Geographic Society",
-                        "978-1-4262-0034-5",
-                        1888, -4));
-
-        Assertions.assertEquals("Publication must have at least one copy", ex.getMessage());
+        Set<ConstraintViolation<Magazine>> violations = validator.validate(new Magazine("National Geographic", "National Geographic Society", "978-1-4262-0034-5", 1888, -4));
+        assertEquals(1, violations.size());
+        ConstraintViolation<Magazine> violation = violations.iterator().next();
+        assertEquals("Publication must have at least one copy", violation.getMessage());
     }
 
     @Test

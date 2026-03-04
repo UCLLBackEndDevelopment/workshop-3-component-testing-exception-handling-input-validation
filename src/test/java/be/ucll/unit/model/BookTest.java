@@ -1,15 +1,37 @@
 package be.ucll.unit.model;
 
 import be.ucll.model.Book;
+import be.ucll.model.Loan;
 import be.ucll.model.Publication;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.time.Year;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BookTest {
+
+    private static ValidatorFactory validatorFactory;
+    private static Validator validator;
+
+    @BeforeAll
+    public static void createValidator() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+
+    @AfterAll
+    public static void close() {
+        validatorFactory.close();
+    }
 
     @Test
     public void givenValidValues_whenBookIsCreated_thenBookIsCreatedWithThoseValues() {
@@ -23,58 +45,51 @@ public class BookTest {
 
     @Test
     public void givenInvalidTitle_whenBookIsCreated_thenErrorIsThrown() {
-        Exception ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Book(null, "J.R.R. Tolkien", "978-0-261-10295-2", 1937, 4));
+        Set<ConstraintViolation<Book>> violations = validator.validate(new Book(null, "J.R.R. Tolkien", "978-0-261-10295-2", 1937, 4));
+        assertEquals(1, violations.size());
+        ConstraintViolation<Book> violation = violations.iterator().next();
+        assertEquals("Title is required", violation.getMessage());
 
-        Assertions.assertEquals("Title is required", ex.getMessage());
-
-        ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Book("", "J.R.R. Tolkien", "978-0-261-10295-2", 1937, 4));
-
-        Assertions.assertEquals("Title is required", ex.getMessage());
+        violations = validator.validate(new Book("", "J.R.R. Tolkien", "978-0-261-10295-2", 1937, 4));
+        assertEquals(1, violations.size());
+        violation = violations.iterator().next();
+        assertEquals("Title is required", violation.getMessage());
     }
 
     @Test
     public void givenInvalidAuthor_whenBookIsCreated_thenErrorIsThrown() {
-        Exception ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Book("The Hobbit", null, "978-0-261-10295-2", 1937, 4));
+        Set<ConstraintViolation<Book>> violations = validator.validate(new Book("The Hobbit", null, "978-0-261-10295-2", 1937, 4));
+        assertEquals(1, violations.size());
+        ConstraintViolation<Book> violation = violations.iterator().next();
+        assertEquals("Author is required", violation.getMessage());
 
-        Assertions.assertEquals("Author is required", ex.getMessage());
-
-        ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Book("The Hobbit", "", "978-0-261-10295-2", 1937, 4));
-
-        Assertions.assertEquals("Author is required", ex.getMessage());
+        violations = validator.validate(new Book("The Hobbit", "", "978-0-261-10295-2", 1937, 4));
+        assertEquals(1, violations.size());
+        violation = violations.iterator().next();
+        assertEquals("Author is required", violation.getMessage());
     }
 
     @Test
     public void givenInvalidISBN_whenBookIsCreated_thenErrorIsThrown() {
-        Exception ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Book("The Hobbit", "J.R.R. Tolkien", null, 1937, 4));
+        Set<ConstraintViolation<Book>> violations = validator.validate(new Book("The Hobbit", "J.R.R. Tolkien", null, 1937, 4));
+        assertEquals(1, violations.size());
+        ConstraintViolation<Book> violation = violations.iterator().next();
+        assertEquals("ISBN is required", violation.getMessage());
 
-        Assertions.assertEquals("ISBN is required", ex.getMessage());
-
-        ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Book("The Hobbit", "J.R.R. Tolkien", "", 1937, 4));
-
-        Assertions.assertEquals("ISBN is required", ex.getMessage());
+        violations = validator.validate(new Book("The Hobbit", "J.R.R. Tolkien", "", 1937, 4));
+        assertEquals(1, violations.size());
+        violation = violations.iterator().next();
+        assertEquals("ISBN is required", violation.getMessage());
     }
 
     @Test
     public void givenInvalidYear_whenBookIsCreated_thenErrorIsThrown() {
+        Set<ConstraintViolation<Book>> violations = validator.validate(new Book("The Hobbit", "J.R.R. Tolkien", "978-0-261-10295-2", -1937, 4));
+        assertEquals(1, violations.size());
+        ConstraintViolation<Book> violation = violations.iterator().next();
+        assertEquals("Publication year must be a positive integer", violation.getMessage());
+
         Exception ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Book("The Hobbit", "J.R.R. Tolkien", "978-0-261-10295-2", -1937, 4));
-
-        Assertions.assertEquals("Publication year must be a positive integer", ex.getMessage());
-
-        ex = Assertions.assertThrows(
                 RuntimeException.class,
                 () -> new Book("The Hobbit", "J.R.R. Tolkien", "978-0-261-10295-2", Year.now().getValue() + 1, 4));
 
@@ -83,11 +98,10 @@ public class BookTest {
 
     @Test
     public void givenInvalidAvailableCopies_whenBookIsCreated_thenErrorIsThrown() {
-        Exception ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Book("The Hobbit", "J.R.R. Tolkien", "978-0-261-10295-2", 1937, -4));
-
-        Assertions.assertEquals("Publication must have at least one copy", ex.getMessage());
+        Set<ConstraintViolation<Book>> violations = validator.validate(new Book("The Hobbit", "J.R.R. Tolkien", "978-0-261-10295-2", 1937, -4));
+        assertEquals(1, violations.size());
+        ConstraintViolation<Book> violation = violations.iterator().next();
+        assertEquals("Publication must have at least one copy", violation.getMessage());
     }
 
     @Test
@@ -99,12 +113,11 @@ public class BookTest {
     }
 
     @Test
-    public void givenBookWith0AvailableCopies_whenBookIsLent_thenErrorIsThrown() {
-        Exception ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> new Book("The Hobbit", "J.R.R. Tolkien", "978-0-261-10295-2", 1937, 0).lendPublication());
-
-        Assertions.assertEquals("Publication must have at least one copy", ex.getMessage());
+    public void givenBookWith0AvailableCopies_whenBookIsCreated_thenErrorIsThrown() {
+        Set<ConstraintViolation<Book>> violations = validator.validate(new Book("The Hobbit", "J.R.R. Tolkien", "978-0-261-10295-2", 1937, 0));
+        assertEquals(1, violations.size());
+        ConstraintViolation<Book> violation = violations.iterator().next();
+        assertEquals("Publication must have at least one copy", violation.getMessage());
     }
 
     @Test

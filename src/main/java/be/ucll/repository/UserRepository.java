@@ -13,6 +13,10 @@ public class UserRepository {
     private List<User> users;
 
     public UserRepository() {
+        resetRepositoryData();
+    }
+
+    public void resetRepositoryData() {
         users = new ArrayList<>(List.of(
                 new User("John Doe", 25, "john.doe@ucll.be", "john1234"),
                 new User("Jane Toe", 30, "jane.toe@ucll.be", "jane1234"),
