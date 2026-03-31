@@ -54,12 +54,14 @@ public class LoanTest {
     @Test
     public void givenValidInput_whenLoanIsCreated_thenAllFieldsHaveCorrectValues() {
         Loan loan = new Loan(validUser, validPublications, validStartDate);
+
         assertEquals(validUser, loan.getUser());
         assertEquals(validPublications, loan.getPublications());
         assertEquals(validStartDate, loan.getStartDate());
         assertEquals(validEndDate, loan.getEndDate());
         assertEquals(3, validBook.getAvailableCopies());
         assertEquals(3, validMagazine.getAvailableCopies());
+
     }
 
     @Test
@@ -110,8 +112,10 @@ public class LoanTest {
     public void givenLoanWithPublication_whenPublicationsAreReturned_thenAvailableCopiesAreIncreased() {
         // given
         Loan loan = new Loan(validUser, validPublications, validStartDate);
+
         assertEquals(3, validBook.getAvailableCopies());
         assertEquals(3, validMagazine.getAvailableCopies());
+
         // when
         loan.returnPublications();
         // then
